@@ -152,23 +152,6 @@ install_android () {
   sdkmanager --package_file=$SDK_MANAGER_PACKAGES_FILE --verbose
 }
 
-# This function is a hack
-# Could not get emulator creation for google_apis working with sdkmanager usage as of 25.2.4
-install_emulators () {
-  $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-24;default;arm64-v8a"
-  
-
-  # Do you wish to create a custom hardware profile? [no]
-    expect -c '
-    set timeout -1;
-    spawn $env(ANDROID_HOME)/tools/bin/avdmanager create avd -n BBAVD -k "system-images;android-24;default;arm64-v8a" --force";
-    expect {
-      "Do you wish to create a custom hardware profile? \[no\]" { exp_send "n\r" ; exp_continue }
-      eof
-    }
-  '
-}
-
 create_symlink () {
     SYMLINK_PATH=$HOME/.android-sdk
     rm -rf $SYMLINK_PATH
@@ -182,7 +165,6 @@ main () {
   get_needed_packages
   overwrite_sdktools
   install_android
-  install_emulators
   create_symlink
 }
 
