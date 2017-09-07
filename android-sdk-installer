@@ -45,17 +45,13 @@ done
 # Expand the path
 if [[ $os == 'linux' ]]; then
     INSTALLER_DIR=`readlink -f "$INSTALLER_DIR"`
-    export JAVA7_HOME='/usr/lib/jvm/java-7-oracle';
-    export JAVA8_HOME='/usr/lib/jvm/java-8-oracle';
-    export JAVA_HOME=$JAVA8_HOME
+    export JAVA_HOME='/usr/lib/jvm/java-8-oracle';
     export ANDROID_HOME=$INSTALLER_DIR/android-sdk-linux
     export TOOLS_DIR=$ANDROID_HOME/tools
     export ANDROID_STORE=/root/.android
 elif [[ $os == 'osx' ]]; then
     INSTALLER_DIR=`stat -f "$INSTALLER_DIR"`
-    export JAVA7_HOME='/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home';
-    export JAVA8_HOME='/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home';
-    export JAVA_HOME=$JAVA8_HOME
+    export JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home';
     export ANDROID_HOME=$INSTALLER_DIR/android-sdk-macosx
     export TOOLS_DIR=$ANDROID_HOME/tools
     export ANDROID_STORE=$HOME/.android
