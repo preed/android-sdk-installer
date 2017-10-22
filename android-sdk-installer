@@ -109,14 +109,7 @@ update_sdkmanager () {
 }
 
 licenses () {
-  expect -c '
-    set timeout -1;
-    spawn $env(ANDROID_HOME)/tools/bin/sdkmanager --licenses
-    expect {
-      "(y/N)" { exp_send "y\r" ; exp_continue }
-      eof
-    }
-  '
+  yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 }
 
 get_needed_packages () {
@@ -159,8 +152,8 @@ create_symlink () {
 
 main () {
   install_sdktools
-  update_sdkmanager
   licenses
+  update_sdkmanager
   get_needed_packages
   overwrite_sdktools
   install_android
