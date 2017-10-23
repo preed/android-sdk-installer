@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set +e
+set -x
+set -e
 
 #detecting os
 os=linux
@@ -8,19 +9,21 @@ if [[ `uname` == 'Darwin' ]]; then
     os=darwin
 fi
 
-ANDROID_NDK_VERSION=r15c
+ANDROID_NDK_VERSION=r14b
 INSTALLER_DIR=$HOME/.android-ndk
-ANDROID_NDK_ZIP=$HOME/android-ndk.zip
-ANDROID_NDK_DIR=$HOME/android-ndk-${ANDROID_NDK_VERSION}
+ANDROID_NDK_ZIP=$INSTALLER_DIR/android-ndk.zip
+ANDROID_NDK_ZIP_DIR=android-ndk-${ANDROID_NDK_VERSION}
+ANDROID_NDK_DIR=$HOME/Library/Android/$ANDROID_NDK_ZIP_DIR
 
 rm -rf $INSTALLER_DIR
 rm -rf $ANDROID_NDK_ZIP
 rm -rf $ANDROID_NDK_DIR
 
-cd $HOME
+mkdir -pv $INSTALLER_DIR
+
 wget -q https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-$os-x86_64.zip -O $ANDROID_NDK_ZIP \
+    && cd $INSTALLER_DIR \
     && unzip -q $ANDROID_NDK_ZIP \
     && sync \
-    && mv $ANDROID_NDK_DIR $INSTALLER_DIR \
+    && mv $INSTALLER_DIR/$ANDROID_NDK_ZIP_DIR $ANDROID_NDK_DIR \
     && rm -rf $ANDROID_NDK_ZIP
-
