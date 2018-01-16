@@ -84,7 +84,7 @@ android () {
 
 download_sdktools() {
   echo "Downloading SDK Tools"
-  wget -nv -c -O $INSTALLER_DIR/$SDK_FILE $SDK_URL
+  curl -LsS $SDK_URL -o $INSTALLER_DIR/$SDK_FILE
 }
 
 extract_sdktools () {
