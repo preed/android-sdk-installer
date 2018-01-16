@@ -53,15 +53,15 @@ elif [[ $os == 'osx' ]]; then
     INSTALLER_DIR=`stat -f "$INSTALLER_DIR"`
 
     if test -n "$TRAVIS"; then
-        JDK_VERSION="1.8.0_112"
+        JDK_VERSION_DIR="jdk1.8.0_112.jdk"
     elif test -n "$CIRCLECI"; then
-        JDK_VERSION="1.8.0_152"
+        JDK_VERSION_DIR="jdk1.8.0_152.jdk"
     else
         # Hail Mary pass...
-        JDK_VERSION="$(ls -d /Library/Java/JavaVirtualMachines/*.jdk | tail -n 1 | sed -e 's:\.jdk::')"
+        JDK_VERSION_DIR="$(ls -1d /Library/Java/JavaVirtualMachines/*.jdk | tail -n 1)"
     fi
 
-    export JAVA_HOME="/Library/Java/JavaVirtualMachines/${JDK_VERSION}.jdk/Contents/Home"
+    export JAVA_HOME="/Library/Java/JavaVirtualMachines/${JDK_VERSION_DIR}/Contents/Home"
 
     export ANDROID_HOME=$INSTALLER_DIR/android-sdk-macosx
     export TOOLS_DIR=$ANDROID_HOME/tools
