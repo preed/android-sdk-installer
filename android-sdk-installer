@@ -99,7 +99,7 @@ update_sdkmanager () {
 }
 
 licenses () {
-  yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+  yes | sdkmanager --licenses
 }
 
 get_needed_packages () {
