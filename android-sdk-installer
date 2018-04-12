@@ -111,12 +111,6 @@ install_android () {
   sdkmanager --package_file=$SDK_MANAGER_PACKAGES_FILE --verbose
 }
 
-create_symlink () {
-    SYMLINK_PATH=$HOME/.android-sdk
-    rm -rf $SYMLINK_PATH
-    ln -s $ANDROID_HOME $SYMLINK_PATH
-}
-
 main () {
   install_sdktools
   licenses
@@ -124,7 +118,6 @@ main () {
   get_needed_packages
   overwrite_sdktools
   install_android
-  create_symlink
 }
 
 main
