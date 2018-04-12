@@ -3,12 +3,6 @@
 set -x
 set -e
 
-#detecting os
-os=linux
-if [[ `uname` == 'Darwin' ]]; then
-    os=darwin
-fi
-
 ANDROID_NDK_VERSION=r14b
 INSTALLER_DIR=$HOME/.android-ndk
 ANDROID_NDK_ZIP=$INSTALLER_DIR/android-ndk.zip
