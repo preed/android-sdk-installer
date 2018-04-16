@@ -11,10 +11,19 @@ set +e
 # This is where all the links for the latest SDK Tools will be
 # https://dl.google.com/android/repository/sdk-tools-linux_3952940.zip
 #ANDROID_SDK_VERSION=26.0.2
-SDK_FILE=sdk-tools
-SDK_FILE=${SDK_FILE}-darwin-3859397.zip
-SDK_URL=https://dl.google.com/android/repository/$SDK_FILE
+
+TODO:
+
+-- parse args
+-- download the SDK files ourselves
+-- put common functions into common file and have sdk/ndk use that?
+
+
+readonly SDK_FILE=sdk-tools-darwin-3859397.zip
+readonly SDK_URL=https://dl.google.com/android/repository/$SDK_FILE
+
 export USE_SDK_WRAPPER=true
+
 # Defaults
 INSTALLER_DIR=$HOME/.android-sdk-installer
 
@@ -30,18 +39,9 @@ case $i in
 esac
 done
 
+
 INSTALLER_DIR=`stat -f "$INSTALLER_DIR"`
 
-if test -n "$TRAVIS"; then
-    JDK_VERSION_DIR="jdk1.8.0_112.jdk"
-elif test -n "$CIRCLECI"; then
-    JDK_VERSION_DIR="jdk1.8.0_144.jdk"
-else
-    # Hail Mary pass...
-    JDK_VERSION_DIR="$(ls -1d /Library/Java/JavaVirtualMachines/*.jdk | tail -n 1)"
-fi
-
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/${JDK_VERSION_DIR}/Contents/Home"
 
 export ANDROID_HOME=$INSTALLER_DIR/android-sdk-macosx
 export TOOLS_DIR=$ANDROID_HOME/tools
@@ -112,6 +112,59 @@ install_android () {
 }
 
 main () {
+   local positional_args=()
+
+
+   while [[ $# -gt 0 ]]; do
+
+      local _arg="$1"
+
+      case $_arg in
+         -h|--help)
+            EXTENSION="$2"
+            shift # past argument
+            shift # past value
+            ;;
+         -i|--install-sdk)
+            EXTENSION="$2"
+            shift # past argument
+            shift # past value
+         -e|--env-file)
+            EXTENSION="$2"
+            shift # past argument
+            shift # past value
+            ;;
+         -j|--jdk-version)
+            SEARCHPATH="$2"
+            shift # past argument
+            shift # past value
+            ;;
+         -t|--tmpdir)
+            LIBPATH="$2"
+            shift # past argument
+            shift # past value
+            ;;
+         -p|--package-manifest)
+            LIBPATH="$2"
+            shift # past argument
+            shift # past value
+            ;;
+         --default)
+            DEFAULT=YES
+            shift # past argument
+            ;;
+         *)    # unknown option
+            positional_args+=("$1")
+            shift # past argument
+            ;;
+      esac
+done
+
+set -- "${POSITIONAL[@]}" # restore positional parameters
+   
+  JDK_VERSION_DIR="jdk${jdk_version}.jdk"
+   export JAVA_HOME="/Library/Java/JavaVirtualMachines/${JDK_VERSION_DIR}/Contents/Home"
+
   install_sdktools
   licenses
   update_sdkmanager
