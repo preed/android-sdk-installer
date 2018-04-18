@@ -47,10 +47,12 @@ export USE_SDK_WRAPPER=1
 
 # Alias functions for Android SDK commands
 sdkmanager () {
+   test -d "$ANDROID_HOME" || abort_script "sdkmanager wrapper: Invalid ANDROID_HOME"
    "$ANDROID_HOME/tools/bin/sdkmanager" "$@"
 }
 
 android () {
+   test -d "$ANDROID_HOME" || abort_script "android wrapper: Invalid ANDROID_HOME"
    "$ANDROID_HOME/tools/android" "$@"
 }
 
