@@ -3,21 +3,93 @@
 set -x
 set -e
 
-ANDROID_NDK_VERSION=r14b
-INSTALLER_DIR=$HOME/.android-ndk
-ANDROID_NDK_ZIP=$INSTALLER_DIR/android-ndk.zip
-ANDROID_NDK_ZIP_DIR=android-ndk-${ANDROID_NDK_VERSION}
-ANDROID_NDK_DIR=$HOME/Library/Android/$ANDROID_NDK_ZIP_DIR
+## This sets up a handler that allows sub-functions to terminate the calling
+## shell when necessary. We use this to ensure that we can halt a build script
+## that calls us when we need to
+trap "exit 1" TERM
+export _calling_script_pid="$$"
 
-rm -rf $INSTALLER_DIR
-rm -rf $ANDROID_NDK_ZIP
-rm -rf $ANDROID_NDK_DIR
+function abort_script() {
+   local _abort_message="$1"
 
-mkdir -pv $INSTALLER_DIR
+   if test -z "$_abort_message"; then
+      _abort_message="$0: unspecified failure. Aborting script execution."
+   fi
 
-curl -LsS https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-$os-x86_64.zip -o $ANDROID_NDK_ZIP \
-    && cd $INSTALLER_DIR \
-    && unzip -q $ANDROID_NDK_ZIP \
-    && sync \
-    && mv $INSTALLER_DIR/$ANDROID_NDK_ZIP_DIR $ANDROID_NDK_DIR \
-    && rm -rf $ANDROID_NDK_ZIP
+   echo "$_abort_message" >&2
+   kill -s TERM $_calling_script_pid
+}
+
+# Initialize Argument variables
+ARG_INSTALL_DIR="$HOME/Library/Android"
+ARG_NDK_FILE=""
+ARG_NDK_VER=""
+
+function extract_ndk() {
+   test -d "$ARG_INSTALL_DIR" || abort_script "extract_ndk(): Invalid ARG_INSTALL_DIR"
+   test -f "$ARG_NDK_FILE" || abort_script "extract_ndk(): Invalid ARG_NDK_FILE"
+   test -n "$ARG_NDK_VER" || abort_script "extract_ndk(): Invalid ARG_NDK_VER"
+
+   unzip -q -o -d $ARG_INSTALL_DIR $ARG_NDK_FILE
+}
+
+function help() {
+   echo "help"
+}
+
+function main() {
+   # Yanked from: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+   # It's not that I didn't know how to parse bash arguments, it's that I wanted
+   # a more portable way to do it than getopt(s), so in searching, this had
+   # manual code to do it (which I modified slightly)
+   while [[ $# -gt 0 ]]; do
+      local _arg="$1"
+
+      case $_arg in
+         -h|--help)
+            help
+            return 0
+            ;;
+         -i|--install-dir)
+            ARG_INSTALL_DIR="$2"
+            shift
+            shift
+            ;;
+         -f|--android-ndk)
+            ARG_NDK_FILE="$2"
+            shift
+            shift
+            ;;
+         -v|--android-ndk-version)
+            ARG_NDK_VER="$2"
+            shift
+            shift
+            ;;
+         *)
+            # unknown option
+            positional_args+=("$1")
+            shift # past argument
+            ;;
+      esac
+   done
+
+   if ! test -d "$ARG_INSTALL_DIR"; then
+      echo "Invalid installation directory: $ARG_INSTALL_DIR" >&2
+      return 1
+   fi
+
+   if test -z "$(echo "$ARG_NDK_VER" | grep -E '^r\d+\w')"; then
+      echo "Invalid Android NDK version: $ARG_NDK_VER" >&2
+      return 1
+   fi
+
+   if ! test -f "$ARG_NDK_FILE"; then
+      echo "Invalid Android NDK install file: $ARG_NDK_FILE" >&2
+      return 1
+   fi
+
+   echo "$0: Extracting Android NDK into $ARG_INSTALL_DIR..."
+   extract_ndk
+}
+
+main
