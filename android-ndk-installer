@@ -34,7 +34,23 @@ function extract_ndk() {
 }
 
 function help() {
-   echo "help"
+   cat << EOF
+$0
+
+Installs and sets up an Android NDK.
+
+   -h, --help                 Display this help message.
+
+   -i, --install-dir          The directory to install the Android NDK into.
+                              Required.
+
+   -f, --android-ndk          The Android NDK zip file to install. Required.
+
+   -v, --android-ndk-version  The version of the Android NDK to install. This
+                              must match the version of the Android NDK file
+                              specified in --android-ndk. Required.
+
+EOF
 }
 
 function main() {

@@ -139,7 +139,41 @@ function generate_env_file() {
 }
 
 function help() {
-   echo "help"
+   cat << EOF
+$0
+
+Installs and sets up an Android SDK.
+
+    -e, --env-file              A file to dump useful environment variables
+                                into, for easy sourcing in a bash-style shell
+                                later. Optional.
+
+    -h, --help                  Display this help message.
+
+    -i, --install-dir           The target directory to install the SDK into.
+                                Required.
+
+    -j, --jdk-version           An installed version of the Java JDK to
+                                install the Android SDK against. If not
+                                specified, a single installed Java SDK will be
+                                searched for. Optional.
+
+    -l, --list-android-packages Use the installed Android SDK to output a list
+                                of all available packages; this can be used
+                                to create a file suitable to pass as the
+                                --package-manifest argument.
+
+    -p, --package-manifest      A list of Android SDK packages to install
+                                after the SDK tools are installed. If not
+                                specified, ALL the available packages will
+                                be installed (which probably isn't what you
+                                want!) See the --list-android-packages argument.
+                                Optional.
+
+    -s, --android-sdk-tools     The Android SDK tools zipfile to install to
+                                install the rest of the Android SDK. Required.
+
+EOF
 }
 
 function main () {
@@ -177,7 +211,7 @@ function main () {
             shift
             shift
             ;;
-         -s|--android-sdk)
+         -s|--android-sdk-tools)
             ARG_SDK_TOOLS_FILE="$2"
             shift
             shift
@@ -229,11 +263,11 @@ function main () {
    # Validate ARG_SDK_TOOLS_FILE
    if test -n "$ARG_SDK_TOOLS_FILE"; then
       if ! test -f "$ARG_SDK_TOOLS_FILE"; then
-         echo "Invalid --android-sdk file: $ARG_SDK_TOOLS_FILE" >&2
+         echo "Invalid --android-sdk-tools file: $ARG_SDK_TOOLS_FILE" >&2
          return 1
       fi
    else
-      echo "Must specify --android-sdk file to install" >&2
+      echo "Must specify --android-sdk-tools file to install" >&2
       return 1
    fi
 
