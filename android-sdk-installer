@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #set -x
-set +e
+set -e
 
 ## This sets up a handler that allows sub-functions to terminate the calling
 ## shell when necessary. We use this to ensure that we can halt a build script
@@ -85,41 +85,38 @@ function accept_licenses () {
    yes | sdkmanager --licenses
 }
 
-function get_package_list() {
-   # Did the user give us a package manifest? If not...
-   if test -z "$ARG_PKG_MANIFEST"; then
-      # Basically install every package...
-      local _pkg_list_to_create="$1"
+function generate_package_list () {
+   # Basically install every package...
+   local _pkg_list_to_create="$1"
 
-      test -f "$_pkg_list_to_create" || abort_script "get_package_list(): no _pkg_list_to_create passed"
+   test -f "$_pkg_list_to_create" || abort_script "get_package_list(): no _pkg_list_to_create passed"
 
-      # This was really the main thing we kept from the original
-      # https://github.com/BuddyBuild/android-sdk-installer/blob/master/android-sdk-installer
-      egrep '^\S+'      |\
-      sed -E '/(---)/d'  |\
-      sed -E '/(Info)/d' |\
-      sed -E '/(Installed)/d' |\
-      sed -E '/(Available)/d' |\
-      sed -E '/(sources)/d' |\
-      sed -E '/(docs)/d' |\
-      sed -E '/(mips)/d' |\
-      sed -E '/(intel)/d' |\
-      sed -E '/(android-tv)/d' |\
-      sed -E '/(android-wear)/d' |\
-      sed -E '/(usb)/d' |\
-      sed -E '/(x86)/d' |\
-      sed -E '/(arm64)/d' |\
-      sed -E '/(add-ons;addon-google_apis-google-(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19))/d' |\
-      sed -E '/(lldb;2.(0|1|2))/d' |\
-      # emulators no longer really work in our environment
-      sed -E '/(system-images)/d' |\
-      sed -E '/(^tools)/d' |\
-      sed -E '/(done)/d' > $_pkg_list_to_create
-   fi
+   # This was really the main thing we kept from the original
+   # https://github.com/BuddyBuild/android-sdk-installer/blob/master/android-sdk-installer
+   egrep '^\S+'      |\
+   sed -E '/(---)/d'  |\
+   sed -E '/(Info)/d' |\
+   sed -E '/(Installed)/d' |\
+   sed -E '/(Available)/d' |\
+   sed -E '/(sources)/d' |\
+   sed -E '/(docs)/d' |\
+   sed -E '/(mips)/d' |\
+   sed -E '/(intel)/d' |\
+   sed -E '/(android-tv)/d' |\
+   sed -E '/(android-wear)/d' |\
+   sed -E '/(usb)/d' |\
+   sed -E '/(x86)/d' |\
+   sed -E '/(arm64)/d' |\
+   sed -E '/(add-ons;addon-google_apis-google-(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19))/d' |\
+   sed -E '/(lldb;2.(0|1|2))/d' |\
+   # emulators no longer really work in our environment
+   sed -E '/(system-images)/d' |\
+   sed -E '/(^tools)/d' |\
+   sed -E '/(done)/d' > $_pkg_list_to_create
 }
 
 function install_android_sdk_packages() {
-   local _pkg_list_="$1"
+   local _pkg_list="$1"
    test -f "$_pkg_list" || abort_script "install_android_sdk_packages(): no _pkg_list passed"
    sdkmanager --package_file=$_pkg_list --verbose
 }
@@ -130,7 +127,6 @@ function generate_env_file() {
    test -z "$_env_file" && abort_script "generate_env_file(): invalid arg"
    echo "export ANDROID_HOME=$ANDROID_HOME" > $_env_file
    echo "export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$TOOLS_DIR:\$PATH" >> $_env_file
--
 }
 
 function help() {
@@ -156,6 +152,7 @@ function main () {
             ARG_INSTALL_DIR="$2"
             shift # past argument
             shift # past value
+            ;;
          -e|--env-file)
             ARG_ENV_FILE="$2"
             shift
@@ -187,17 +184,25 @@ function main () {
    # restore positional parameters
    set -- "${POSITIONAL[@]}"
 
+echo $ARG_ENV_FILE
+echo $ARG_JDK_VER
+echo $ARG_INSTALL_DIR
+echo $ARG_PKG_MANIFEST
+echo $ARG_SDK_TOOLS_FILE
+
+# Per the Android tool:
+
    # Validate --jdk-version
    local _jdk_version_dir=""
    if test -z "$ARG_JDK_VER"; then
       echo "No --jdk-version argument given; attempting to detect Java version." >&2
-      _jdk_version_dir="$(cd /Library/Java/JavaVirtualMachines 2> /dev/null && ls -1 *.jdk 2> /dev/null)"
+      _jdk_version_dir="$(cd /Library/Java/JavaVirtualMachines 2> /dev/null && ls -1d *.jdk 2> /dev/null)"
       if [[ "$(echo "$_jdk_version_dir" | wc -w)" -ne 1 ]]; then
          echo "Could not find one JDK directory: $_jdk_version_dir" >&2
          return 1
       fi
    else
-      _jdk_version_dir="jdk${ARG_JDK_VERS}.jdk"
+      _jdk_version_dir="jdk${ARG_JDK_VER}.jdk"
    fi
 
    export JAVA_HOME="/Library/Java/JavaVirtualMachines/${_jdk_version_dir}/Contents/Home"
@@ -256,7 +261,10 @@ function main () {
    echo "$0: Updating SDK manager"
    update_sdkmanager
 
-   get_package_list $_package_manifest
+   # We only need to generate the package list if one wasn't supplied to us
+   if test -z "$ARG_PKG_MANIFEST"; then
+      generate_package_list $_package_manifest
+   fi
 
    overwrite_sdktools
 
@@ -276,4 +284,4 @@ function main () {
    return 0
 }
 
-main
+main "$@"
