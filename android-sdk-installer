@@ -272,6 +272,8 @@ function main () {
       # Clean up the tmp file we used for the package manifest, if we created it
       test -n "$_package_manifest" && rm $_package_manifest
    fi
+
+   return 0
 }
 
 main

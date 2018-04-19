@@ -90,6 +90,8 @@ function main() {
 
    echo "$0: Extracting Android NDK into $ARG_INSTALL_DIR..."
    extract_ndk
+
+   return 0
 }
 
 main
