@@ -184,13 +184,7 @@ function main () {
    # restore positional parameters
    set -- "${POSITIONAL[@]}"
 
-echo $ARG_ENV_FILE
-echo $ARG_JDK_VER
-echo $ARG_INSTALL_DIR
-echo $ARG_PKG_MANIFEST
-echo $ARG_SDK_TOOLS_FILE
 
-# Per the Android tool:
 
    # Validate --jdk-version
    local _jdk_version_dir=""
