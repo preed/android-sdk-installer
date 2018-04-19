@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+#set -x
 set -e
 
 ## This sets up a handler that allows sub-functions to terminate the calling
