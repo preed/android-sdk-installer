@@ -231,7 +231,7 @@ function main () {
    # restore positional parameters
    set -- "${POSITIONAL[@]}"
 
-   export ANDROID_HOME="$ARG_INSTALL_DIR/android-sdk-macosx"
+   export ANDROID_HOME="$ARG_INSTALL_DIR"
    export TOOLS_DIR="$ANDROID_HOME/tools"
 
    if test -z "$ARG_INSTALL_DIR"; then
